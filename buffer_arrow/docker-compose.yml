@@ -1,0 +1,13 @@
+version: '3'
+services:
+  agent:
+    build:
+      context: .
+    command: >
+      bash -c "
+        bundle exec fluentd -c agent.conf || true &
+        echo Waiting for agent to come up ... &&
+        while ! test -f /var/tmp/_var_log_dummy.pos ; do sleep 0.1 ; done ;
+        echo Starting pushing logs... &&
+        bundle exec dummer -c dummer.conf -r 100000 || true
+      "
